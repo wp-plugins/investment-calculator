@@ -11,6 +11,7 @@ This plugin displays functional compounding investment calculator
 
 This plugin displays functional compounding investment calculator. It can be used how a hypothetical investment can grow over time. It allows partial compounding. 
 
+You can try the [investment calculator demo](http://sharkinvestor.com/investment-calculator/ "Try Compounding Calculator Demo") to get an exact idea how this plugin will look over your blog.
 
 == Installation ==
 
