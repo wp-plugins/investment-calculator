@@ -4,7 +4,7 @@ Plugin Name: Investment Calculator
 Plugin URI: http://sharkinvestor.com/investment-calculator-wordpress-plugin/
 Description: This is an investment compounding calculator giving detailed breakdown of how youir investment grows over time. It lets you choose to reinvest only part or all of the profits (i.e. partial compounding)
 Author: Bobby Handzhiev
-Version: 1.0
+Version: 1.1
 Author URI: http://pimteam.net/
 */ 
 
@@ -31,13 +31,13 @@ function investmentcalculator_add_page()
 	add_submenu_page('plugins.php', 'Investment Calculator Configuration', 'Investment Calculator Configuration', 8, __FILE__, 'investmentcalculator_options');
 }
 
-// firstimer_options() displays the page content for the FirstTimer Options submenu
+// investcalc_options() displays the page content for the FirstTimer Options submenu
 function investmentcalculator_options() 
 {
     // Read in existing option value from database
     $ccalc_table = stripslashes( get_option( 'ccalc_table' ) );
     $ccalc_titlecell = stripslashes( get_option( 'ccalc_titlecell' ) );
-
+    
     // See if the user has posted us some information
     // If they did, this hidden field will be set to 'Y'
     if( $_POST[ 'ccalc_update' ] == 'Y' ) 
@@ -45,14 +45,14 @@ function investmentcalculator_options()
         // Read their posted value
         $ccalc_table = $_POST[ 'ccalc_table' ];
         $ccalc_titlecell = $_POST[ 'ccalc_titlecell' ];
-
+        
         // Save the posted value in the database
         update_option( 'ccalc_table', $ccalc_table );
         update_option( 'ccalc_titlecell', $ccalc_titlecell );
-
+        
         // Put an options updated message on the screen
 		?>
-		<div class="updated"><p><strong><?php _e('Options saved.', 'firstimer_domain' ); ?></strong></p></div>
+		<div class="updated"><p><strong><?php _e('Options saved.', 'investcalc_domain' ); ?></strong></p></div>
 		<?php		
 	 }
 		
@@ -65,12 +65,12 @@ function investmentcalculator_options()
 		
 		<form name="form1" method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">
 		<input type="hidden" name="ccalc_update" value="Y">
-		
-		<p><?php _e("CSS class definition for the calculator table:", 'firstimer_domain' ); ?> 
+        
+		<p><?php _e("CSS class definition for the calculator table:", 'investcalc_domain' ); ?> 
 		<textarea name="ccalc_table" rows='5' cols='70'><?php echo stripslashes ($ccalc_table); ?></textarea>
 		</p><hr />
 		
-		<p><?php _e("CSS class definition for the results title cells:", 'firstimer_domain' ); ?> 
+		<p><?php _e("CSS class definition for the results title cells:", 'investcalc_domain' ); ?> 
 		<textarea name="ccalc_titlecell" rows='5' cols='70'><?php echo stripslashes ($ccalc_titlecell); ?></textarea>
 		</p><hr />
 		
@@ -87,7 +87,7 @@ function investmentcalculator_options()
 function investmentcalculator($content) 
 {
 	if(!strstr($content,"[compounding-calculator]")) return $content;
-	
+    
 	//construct the calculator page	
 	$compcalc="<style type=\"text/css\">
 	.ccalc_table
@@ -107,22 +107,21 @@ function investmentcalculator($content)
 	  <tr>
 	    <td align="center">
 	      Invested amount :        </td>
-	    <td align="left"><input name="invested_amount" type="text" id="invested_amount" size="9" value="'.$_POST['invested_amount'].'" /> <span class="hint">Your initial spend</span></td>
+	    <td align="left"><input name="invested_amount" type="text" id="invested_amount" size="9" value="'.$_POST['invested_amount'].'" /> <span class="hint">Your initial investment</span></td>
 	  </tr>
 	   <tr>
 	    <td align="center">
-	      Annual (or monthly) Addition:        </td>
+	      Annual Addition:        </td>
 	    <td align="left"><input name="contribution" type="text" id="contribution" size="9" value="'.$_POST['contribution'].'" /></td>
 	  </tr>
 	  <tr>
-	    <td align="center">ROI in %:      </td>
+	    <td align="center">Interest rate:</td>
 	    <td align="left"><input name="ROI" type="text" id="ROI" size="9" value="'.$_POST['ROI'].'" /> <span class="hint">Return on investment (Interest)</span></td>
 	  </tr>
 	  <tr>
-	    <td align="center">Number of years (or months):      </td>
+	    <td align="center">Number of years:      </td>
 	    <td align="left"><select name="period" >
-	      <option value="Select">--Period--</option>';
-	      
+	      <option value="Select">--Period--</option>';	      
 	    
 		for( $i=1 ; $i<501 ; $i++)
 		{
@@ -130,8 +129,7 @@ function investmentcalculator($content)
 			else $selected='';
 		
 	       $compcalc.="<option $selected value=\"$i\">$i</option>";	      
-		}
-		
+		}	
 	    
 		$compcalc.='</select></td>
 	  </tr>
@@ -149,8 +147,7 @@ function investmentcalculator($content)
 	        $compcalc.="<option $selected value=\"$i\">$i</option>";	  	      
 		} 
 	    $compcalc.='</select> <span>What % you reinvest</span></td>
-	  </tr>
-	  <tr>
+	  </tr><tr>
 	    <td align="left">&nbsp;</td>
 	    <td align="left"><input name="Submit" type="submit" value="Submit" /></td>
 	  </tr>
@@ -181,11 +178,12 @@ function investmentcalculator($content)
 		$compcalc.='<br /><br /><br /><br /><table border="0" align="center" cellpadding="2" cellspacing="1">
 	      <tr>
 	        <th class="ccalc_titlecell">Period</td>
-	        <th class="ccalc_titlecell">Principal</td>
-	        <th class="ccalc_titlecell">Withdrawn</td>
+	        <th class="ccalc_titlecell">Investment Value</td>
+            <th class="ccalc_titlecell">Withdrawn</td>
 	        <th class="ccalc_titlecell">Total Withdrawn</td>
-	        <th class="ccalc_titlecell">Total ROI</td>
-	      </tr>';
+	        <th class="ccalc_titlecell">Total ROI</td>';
+            
+	      $compcalc.='</tr>';
 		 
 			for($i = 1 ; $i < ($period+1) ; $i++ )
 			{

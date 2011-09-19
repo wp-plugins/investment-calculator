@@ -2,8 +2,8 @@
 Contributors: prasunsen
 Tags: investment, calculator, compounding, interest
 Requires at least: 2.0.2
-Tested up to: 2.5
-Stable tag: 1.0
+Tested up to: 3.2
+Stable tag: 1.1
 
 This plugin displays functional compounding investment calculator
 
