@@ -1,5 +1,5 @@
 === Investment Calculator ===
-Contributors: prasunsen
+Contributors: Bobby Handzhiev, prasunsen
 Tags: investment, calculator, compounding, interest
 Requires at least: 2.0.2
 Tested up to: 3.2
