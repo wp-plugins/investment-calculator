@@ -4,7 +4,7 @@ Plugin Name: Investment Calculator
 Plugin URI: http://sharkinvestor.com/investment-calculator-wordpress-plugin/
 Description: This is an investment compounding calculator giving detailed breakdown of how youir investment grows over time. It lets you choose to reinvest only part or all of the profits (i.e. partial compounding)
 Author: Bobby Handzhiev
-Version: 1.1
+Version: 2.0
 Author URI: http://pimteam.net/
 */ 
 
@@ -102,8 +102,8 @@ function investmentcalculator($content)
 	</style>\n\n";
 	
 	$compcalc.='<h3 align="center">Investment Compounding Calculator</h3>
-	<table align="center" border="0" cellspacing="1" cellpadding="5" class="ccalc_table">
-	  <form method="post" action="'.str_replace( '%7E', '~', $_SERVER['REQUEST_URI']).'">
+	<form method="post">
+	<table align="center" border="0" cellspacing="1" cellpadding="5" class="ccalc_table">	  
 	  <tr>
 	    <td align="center">
 	      Invested amount :        </td>
@@ -111,26 +111,24 @@ function investmentcalculator($content)
 	  </tr>
 	   <tr>
 	    <td align="center">
-	      Annual Addition:        </td>
-	    <td align="left"><input name="contribution" type="text" id="contribution" size="9" value="'.$_POST['contribution'].'" /></td>
+	      Annual Contribution:        </td>
+	    <td align="left"><input name="contribution" type="text" id="contribution" size="9" value="'.$_POST['contribution'].'" /> <span class="hint">Optional</span></td>
 	  </tr>
 	  <tr>
 	    <td align="center">Interest rate:</td>
-	    <td align="left"><input name="ROI" type="text" id="ROI" size="9" value="'.$_POST['ROI'].'" /> <span class="hint">Return on investment (Interest)</span></td>
+	    <td align="left"><input name="ROI" type="text" id="ROI" size="5" value="'.$_POST['ROI'].'" /> <span class="hint">% Return on investment (Interest)</span></td>
 	  </tr>
 	  <tr>
-	    <td align="center">Number of years:      </td>
+	    <td align="center">Number of years:</td>
 	    <td align="left"><select name="period" >
-	      <option value="Select">--Period--</option>';	      
+	      <option value="Select">-- Select --</option>';	      
 	    
-		for( $i=1 ; $i<501 ; $i++)
-		{
+		for( $i=1 ; $i<=100 ; $i++):		
 			if($i==$_POST['period']) $selected='selected';
 			else $selected='';
 		
 	       $compcalc.="<option $selected value=\"$i\">$i</option>";	      
-		}	
-	    
+		endfor;
 		$compcalc.='</select></td>
 	  </tr>
 	  <tr>
@@ -146,86 +144,62 @@ function investmentcalculator($content)
 		
 	        $compcalc.="<option $selected value=\"$i\">$i</option>";	  	      
 		} 
-	    $compcalc.='</select> <span>What % you reinvest</span></td>
+	    $compcalc.='</select> <span>% reinvested profits</span></td>
 	  </tr><tr>
 	    <td align="left">&nbsp;</td>
 	    <td align="left"><input name="Submit" type="submit" value="Submit" /></td>
-	  </tr>
-	  
-	   <tr>
-	    <td align="left"><input type="hidden" name="ok" value="1" /></td>
-	    <td align="left">&nbsp;</td>
-	   </tr>
-	  </form>
-	</table>';
+	  </tr>	  
+	</table>
+	<input type="hidden" name="ok" value="1" />
+	  </form>';
 		
 	
-	if(isset($_POST['ok']))
+	if(!empty($_POST['ok']))
 	{
-		//get all the form details
-		//print_r($_POST);
-		$period = $_POST['period'];
-	
-		$invested_amount = $_POST['invested_amount'];
-	
-		$ROI = $_POST['ROI'];	
-		$PROI = $ROI/100;
+		$compcalc.="<p>&nbsp;</p><table class='ccalc_table ccalc_result'>
+		<tr><th>Year</th><th>Balance at the end</th><th>Contribution</th><th>Interest Earned</th><th>Cash Withdrawn</th>
+		<th>% Total Return</th></tr><tbody>";
 		
-		$cp = $_POST['cp'];
-		$Pcp = $cp/100;
+		$current_year=date("Y");
+		$total_contribution=0;
 		
-		//Start the calculations	
-		$compcalc.='<br /><br /><br /><br /><table border="0" align="center" cellpadding="2" cellspacing="1">
-	      <tr>
-	        <th class="ccalc_titlecell">Period</td>
-	        <th class="ccalc_titlecell">Investment Value</td>
-            <th class="ccalc_titlecell">Withdrawn</td>
-	        <th class="ccalc_titlecell">Total Withdrawn</td>
-	        <th class="ccalc_titlecell">Total ROI</td>';
-            
-	      $compcalc.='</tr>';
-		 
-			for($i = 1 ; $i < ($period+1) ; $i++ )
-			{
-				$new_principal=$new_principal?$new_principal:$_POST['invested_amount'];
-				$new_principal=round($new_principal,2);
-										
-				$profit = $new_principal * $PROI;		
-				$profit=round($profit,2);
-				
-				$addition = $profit * $Pcp;
-				$withdraw=round(($profit-$addition),2);
-				
-				//total withdrawn
-				$total_withdrawn+=$withdraw;
-				
-				//total ROI
-				if($_POST['invested_amount']>0)
-				{
-					$total_roi=($total_withdrawn/$_POST['invested_amount'])*100;
-					$total_roi=round($total_roi);
-				}
-				else $total_roi=0;
-				
-				if($i%2==0) $bgcolor="white";
-				else $bgcolor="#eeeeee;";
-				
-		        $compcalc.='<tr style="background:'.$bgcolor.';">
-		        <td align="center">'.$i.'&nbsp;</td>
-		        <td align="right">'.number_format($new_principal).'</td>
-		        <td align="right">'.number_format($withdraw).'</td>
-		        <td align="right">'.number_format($total_withdrawn).'</td>
-		        <td align="right">'.$total_roi.'%</td>';
-		      
-			
-				$new_principal=$new_principal+$addition;
-			
-				//now add annual addition to this
-				$new_principal+=$_POST['contribution'];
-		    }
-	  }
-	
-	$compcalc.='</tr></table>';
+		// balance before adding anything
+		$balance=$_POST['invested_amount'];  
+		$new_balance=$balance;     	
+		$total_interest=0;		
+		$total_cash=0;
+		
+		for($i=0;$i<$_POST['period'];$i++)
+		{
+			$year=$current_year+$i;
+         
+         // add contribution
+         $total_contribution+=$_POST['contribution'];
+         
+         // interest in $ for the period
+         $interest=$new_balance*($_POST['ROI']/100);
+         $total_interest+=$interest;
+         
+         // what cash is withdrawn
+         // interest - reinvested interest
+			$cash=round($interest-($interest*($_POST['cp']/100)));
+			$total_cash+=$cash;
+         
+         // now new balance
+         $new_balance=$new_balance+$interest-$cash+$_POST['contribution'];;
+                  
+         // total return at this point
+         $roi=round((($new_balance+$total_cash)/($balance+$total_contribution))*100);         
+         
+         $compcalc.="<tr><td>$year</td><td>\$".number_format($new_balance)."</td><td>\$".number_format($_POST['contribution'])."</td>
+         <td>\$".number_format($interest)."</td><td>\$".number_format($cash)."</td><td>".number_format($roi)."%</td></tr>";
+		}	
+		
+		$compcalc.="</tbody><tr><th>Total:</td><th>\$".number_format($new_balance)."</th><th>\$".number_format($total_contribution)."</th>
+		<th>\$".number_format($total_interest)."</th><th>\$".number_format($total_cash)."</th>
+		<th>".number_format($roi)."%</th></tr>";
+		$compcalc.='</table>';	
+	}
 	
 	$content=str_replace("[compounding-calculator]",$compcalc,$content);
 	return $content;
@@ -233,5 +207,3 @@ function investmentcalculator($content)
 
 add_action('admin_menu','investmentcalculator_add_page');
 add_filter('the_content', 'investmentcalculator');
-
-?>
