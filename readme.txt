@@ -33,7 +33,3 @@ Yes, you can put Adsense or any other ads
 = How does it calculate exactly? =
 
 Please check [this page](http://sharkinvestor.com/2012/07/10/compounded-investment-calculations-explained/) for detailed explanation.
-
-= Should I link back to the plugin page =
-
-It's not required but a link to http://sharkinvestor.com will be highly appreciated.
